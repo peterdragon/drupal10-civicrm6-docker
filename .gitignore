@@ -51,3 +51,6 @@ node_modules/
 # Cache directories
 cache/
 tmp/
+
+# Installation notes (development only)
+install_notes.md
