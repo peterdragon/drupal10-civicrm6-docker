@@ -12,6 +12,7 @@ A complete Docker-based development environment for Drupal 10.3 and CiviCRM 6.5.
 - **PHP 8.3** - Modern PHP runtime
 - **Apache 2.4** - Web server
 - **Automated Installation** - One-command setup
+- **Custom Navigation Menu** - Quick admin access
 - **Greenwich Theme** - Modern CiviCRM interface
 
 ## 📋 Prerequisites
@@ -97,6 +98,18 @@ drupal10civicrm6/
 - **Debug Mode**: Enabled (for development)
 
 ## 🎯 CiviCRM Entity Integration
+
+### Navigation Menu Setup
+
+The installation automatically creates a custom CiviCRM navigation menu with quick access to administrative functions:
+
+- **🛠️ Admin Settings** - Main CiviCRM administration panel
+- **⚙️ System Settings** - Direct access to system configuration  
+- **👥 User Management** - User and permission management
+
+For detailed navigation menu management, see [navigation_menu.md](navigation_menu.md).
+
+## 🧭 Navigation Menu Management
 
 The CiviCRM Entity module provides powerful integration between Drupal and CiviCRM:
 
