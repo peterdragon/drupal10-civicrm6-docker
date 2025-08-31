@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Data directories
+drupal-data/
+mysql-data/
+
+# Docker files
+docker-compose.yml
+.dockerignore
+
+# Scripts
+install.sh
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+*.sql
+*.gz
+*.tar.gz
+*.zip

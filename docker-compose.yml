@@ -1,0 +1,75 @@
+#version: '3.8'
+services:
+  drupal:
+    platform: linux/amd64
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    user: root  # Temporarily run as root
+    volumes:
+      - ./drupal-data:/var/www/html/drupal/web/sites
+    depends_on:
+      - database
+    environment:
+      - MYSQL_HOST=database
+      - MYSQL_DATABASE=drupal10
+      - MYSQL_USER=drupal_user
+      - MYSQL_PASSWORD=drupal_user_password
+    command:
+      - /bin/bash
+      - -c
+      - |
+        # Set up Drupal settings files
+        cd /var/www/html/drupal/web/sites/default
+        if [ ! -f "default.settings.php" ]; then
+          echo "Setting up Drupal settings files..."
+          cp /var/www/html/drupal/web/core/assets/scaffold/files/default.settings.php .
+          cp default.settings.php settings.php
+          chmod 666 settings.php
+        fi
+        
+        # Ensure correct permissions
+        mkdir -p /var/www/html/drupal/web/sites/default/files
+        chown -R www-data:www-data /var/www/html/drupal/web/sites
+        chmod -R 755 /var/www/html/drupal/web/sites/default/files
+        
+        # Install CiviCRM if not already installed
+        if [ ! -f "/var/www/html/drupal/vendor/civicrm/civicrm-core/composer.json" ]; then
+          echo "Installing CiviCRM..."
+          cd /var/www/html/drupal
+          composer config extra.enable-patching true
+          composer config allow-plugins.cweagans/composer-patches true
+          composer config allow-plugins.civicrm/civicrm-asset-plugin true
+          composer config allow-plugins.civicrm/composer-downloads-plugin true
+          composer config allow-plugins.civicrm/composer-compile-plugin true
+          composer config extra.compile-mode all
+          composer require civicrm/civicrm-{core,packages,drupal-8} --no-interaction
+          composer require civicrm/cli-tools --no-interaction
+          curl -Ls https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv && chmod +x /usr/local/bin/cv
+          mkdir -p web/sites/default/temp && chmod 770 web/sites/default/temp/ && chown www-data web/sites/default/temp/
+          echo "✅ CiviCRM packages installed and ready for Drupal installation"
+        else
+          echo "CiviCRM already installed"
+        fi
+        
+        apache2-foreground
+
+  database:
+    platform: linux/amd64
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: drupal_root_password
+      MYSQL_DATABASE: drupal10
+      MYSQL_USER: drupal_user
+      MYSQL_PASSWORD: drupal_user_password
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --log-bin-trust-function-creators=1
+
+networks:
+  default:
+    driver: bridge
