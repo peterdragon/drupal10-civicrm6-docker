@@ -59,22 +59,8 @@ docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/dru
 echo "🔧 Final cache clear to ensure all modules are properly loaded..."
 docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush cr --root=/var/www/html/drupal/web"
 
-echo "🔧 Setting up CiviCRM navigation menu..."
-docker-compose exec -T drupal cv api3 Navigation.create label="🛠️ Admin Console" url="civicrm/admin?reset=1" weight=100 is_active=1
-docker-compose exec -T drupal cv api3 Navigation.create label="⚙️ System Settings" url="civicrm/admin/setting?reset=1" weight=101 is_active=1
-docker-compose exec -T drupal cv api3 Navigation.create label="👥 Users & Permissions" url="civicrm/admin/access?reset=1" weight=102 is_active=1
-docker-compose exec -T drupal cv api3 Navigation.create label="🔌 Extensions" url="civicrm/admin/extensions?reset=1" weight=103 is_active=1
-
-echo "🔧 Creating collapsible CiviCRM admin block..."
-docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush eval \"\\Drupal::entityTypeManager()->getStorage('block_content')->create(['type' => 'basic', 'info' => 'CiviCRM Admin Links (Collapsible)', 'body' => ['value' => '<div class=\\\"civicrm-admin-collapsible\\\"><button class=\\\"civicrm-toggle-btn\\\" onclick=\\\"toggleCiviCRM()\\\">🛠️ CiviCRM Admin Links ▼</button><div class=\\\"civicrm-menu-content\\\" style=\\\"display: none;\\\"><ul><li><a href=\\\"/civicrm/admin?reset=1\\\">🛠️ CiviCRM Admin</a></li><li><a href=\\\"/civicrm/admin/component?reset=1\\\">📧 Headers & Messages</a></li><li><a href=\\\"/civicrm/admin/paymentProcessor?reset=1\\\">💳 Payment Processors</a></li><li><a href=\\\"/civicrm/admin/extensions?reset=1\\\">🔌 Extensions</a></li></ul></div></div><script>function toggleCiviCRM() { var content = document.querySelector(\\\".civicrm-menu-content\\\"); var btn = document.querySelector(\\\".civicrm-toggle-btn\\\"); if (content.style.display === \\\"none\\\") { content.style.display = \\\"block\\\"; btn.innerHTML = \\\"🛠️ CiviCRM Admin Links ▲\\\"; } else { content.style.display = \\\"none\\\"; btn.innerHTML = \\\"🛠️ CiviCRM Admin Links ▼\\\"; } }</script>', 'format' => 'full_html']])->save();\" --root=/var/www/html/drupal/web"
-docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush config:set block.block.civicrmadminlinkscollapsible status 1 --root=/var/www/html/drupal/web"
-docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush config:set block.block.civicrmadminlinkscollapsible region content --root=/var/www/html/drupal/web"
-
-echo "🔧 Note: CiviCRM admin links are now in a collapsible block in the content area"
-
-echo "🔧 Enabling main menu block..."
-docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush config:set block.block.olivero_main_menu status 1 --root=/var/www/html/drupal/web"
-docker-compose exec -T drupal bash -c "cd /var/www/html/drupal && vendor/bin/drush config:set block.block.olivero_main_menu region primary_menu --root=/var/www/html/drupal/web"
+echo "🔧 Creating libraries symlink for CiviCRM..."
+docker-compose exec -T drupal ln -sf /var/www/html/drupal/web/libraries /var/www/html/libraries
 
 echo "✅ CiviCRM installation complete!"
 echo ""
@@ -89,9 +75,6 @@ echo "4. Explore CiviCRM Entity integration:"
 echo "   - Create Views of CiviCRM data: /admin/structure/views"
 echo "   - Add CiviCRM fields to content types: /admin/structure/types"
 echo "   - Access CiviCRM entities via Drupal's Entity API"
-echo "5. Navigation menu:"
-echo "   - Custom admin links are available in the CiviCRM navigation menu"
-echo "   - See navigation_menu.md for detailed management instructions"
 echo ""
 echo "🔧 Optional: Run 'docker-compose exec drupal cv api System.check' to check system status"
 
